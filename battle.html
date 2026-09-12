@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Battle Royale</title>
+
+<style>
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  background:#080808;
+  color:white;
+  font-family:Arial,sans-serif;
+  overflow:hidden;
+  user-select:none;
+}
+
+#hud{
+  position:fixed;
+  top:8px;
+  left:8px;
+  right:8px;
+  z-index:5;
+  display:flex;
+  justify-content:space-between;
+  font-weight:bold;
+  font-size:16px;
+  text-shadow:0 2px 3px #000;
+}
+
+#game{
+  position:relative;
+  width:100vw;
+  height:100vh;
+  overflow:hidden;
+  background:
+    linear-gradient(#0002,#0002),
+    repeating-linear-gradient(
+      45deg,
+      #315b2c 0px,
+      #315b2c 40px,
+      #376831 40px,
+      #376831 80px
+    );
+}
+
+#map{
+  position:absolute;
+  width:1800px;
+  height:1200px;
+  left:50%;
+  top:50%;
+  transform:translate(-50%,-50%);
+  background:
+    radial-gradient(circle at 20% 30%,#42783b 0 70px,transparent 71px),
+    radial-gradient(circle at 70% 70%,#42783b 0 90px,transparent 91px),
+    #315b2c;
+}
+
+.tree{
+  position:absolute;
+  font-size:55px;
+}
+
+.player{
+  position:absolute;
+  width:45px;
+  height:55px;
+  font-size:42px;
+  text-align:center;
+  z-index:3;
+}
+
+.enemy{
+  position:absolute;
+  width:45px;
+  height:55px;
+  font-size:40px;
+  text-align:center;
+  z-index:2;
+}
+
+.bullet{
+  position:absolute;
+  width:9px;
+  height:9px;
+  background:#ffe600;
+  border-radius:50%;
+  box-shadow:0 0 10px #fff000;
+  z-index:4;
+}
+
+#zone{
+  position:absolute;
+  width:900px;
+  height:900px;
+  border:5px solid #28a9ff;
+  border-radius:50%;
+  left:450px;
+  top:150px;
+  box-shadow:0 0 25px #28a9ff55 inset;
+  z-index:1;
+}
+
+#startScreen{
+  position:fixed;
+  inset:0;
+  background:#050505ee;
+  z-index:10;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex-direction:column;
+}
+
+#startScreen h1{
+  font-size:38px;
+  color:#ffcc00;
+  text-shadow:0 0 20px #ff6600;
+}
+
+button{
+  padding:14px 35px;
+  border:0;
+  border-radius:12px;
+  background:#ffcc00;
+  font-size:20px;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+#controls{
+  position:fixed;
+  bottom:20px;
+  left:20px;
+  z-index:6;
+}
+
+.ctrl{
+  width:55px;
+  height:55px;
+  margin:3px;
+  border:2px solid white;
+  border-radius:12px;
+  background:#0008;
+  color:white;
+  font-size:24px;
+}
+
+#shoot{
+  position:fixed;
+  right:25px;
+  bottom:35px;
+  width:85px;
+  height:85px;
+  border-radius:50%;
+  border:3px solid white;
+  background:#d22;
+  color:white;
+  font-size:35px;
+  z-index:6;
+}
+
+#msg{
+  position:fixed;
+  inset:0;
+  z-index:9;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  flex-direction:column;
+  background:#000b;
+  text-align:center;
+}
+
+#msg h2{
+  font-size:45px;
+  color:#ffcc00;
+}
+</style>
+</head>
+
+<body>
+
+<div id="hud">
+  <div>❤️ HP: <span id="hp">100</span></div>
+  <div>🔫 Kills: <span id="kills">0</span></div>
+  <div>👥 Enemies: <span id="enemies">8</span></div>
+</div>
+
+<div id="game">
+  <div id="map">
+    <div id="zone"></div>
+
+    <div class="tree" style="left:100px;top:100px">🌳</div>
+    <div class="tree" style="left:500px;top:400px">🌲</div>
+    <div class="tree" style="left:1200px;top:200px">🌳</div>
+    <div class="tree" style="left:1450px;top:800px">🌲</div>
+    <div class="tree" style="left:300px;top:900px">🌳</div>
+
+    <div id="player" class="player">🧍</div>
+  </div>
+</div>
+
+<div id="controls">
+  <div>
+    <button class="ctrl" id="up">⬆️</button>
+  </div>
+  <button class="ctrl" id="left">⬅️</button>
+  <button class="ctrl" id="down">⬇️</button>
+  <button class="ctrl" id="right">➡️</button>
+</div>
+
+<button id="shoot">🔫</button>
+
+<div id="startScreen">
+  <h1>🔥 BATTLE ROYALE 🔥</h1>
+  <p>Free Fire-style mini game</p>
+  <p>Move • Shoot • Eliminate enemies</p>
+  <button id="start">START BATTLE</button>
+</div>
+
+<div id="msg">
+  <h2 id="result"></h2>
+  <p id="resultText"></p>
+  <button onclick="location.reload()">PLAY AGAIN</button>
+</div>
+
+<script>
+
+const player=document.getElementById("player");
+const map=document.getElementById("map");
+const hpText=document.getElementById("hp");
+const killsText=document.getElementById("kills");
+const enemiesText=document.getElementById("enemies");
+
+let px=850;
+let py=550;
+let hp=100;
+let kills=0;
+let gameRunning=false;
+
+let keys={};
+let enemies=[];
+let enemyTimer;
+
+player.style.left=px+"px";
+player.style.top=py+"px";
+
+
+// START
+document.getElementById("start").onclick=()=>{
+  document.getElementById("startScreen").style.display="none";
+  gameRunning=true;
+
+  spawnEnemies();
+  gameLoop();
+};
+
+
+// ENEMIES
+function spawnEnemies(){
+
+  for(let i=0;i<8;i++){
+
+    let e=document.createElement("div");
+
+    e.className="enemy";
+    e.textContent="🧟";
+
+    let ex=Math.random()*1650+50;
+    let ey=Math.random()*1050+50;
+
+    e.style.left=ex+"px";
+    e.style.top=ey+"px";
+
+    map.appendChild(e);
+
+    enemies.push({
+      el:e,
+      x:ex,
+      y:ey,
+      hp:30
+    });
+  }
+
+  enemiesText.textContent=enemies.length;
+}
+
+
+// MOVEMENT
+document.addEventListener("keydown",e=>{
+  keys[e.key.toLowerCase()]=true;
+
+  if(e.key===" ") shoot();
+});
+
+document.addEventListener("keyup",e=>{
+  keys[e.key.toLowerCase()]=false;
+});
+
+
+// MOBILE BUTTONS
+function hold(id,key){
+
+  let b=document.getElementById(id);
+
+  b.ontouchstart=()=>{
+    keys[key]=true;
+  };
+
+  b.ontouchend=()=>{
+    keys[key]=false;
+  };
+
+  b.onmousedown=()=>{
+    keys[key]=true;
+  };
+
+  b.onmouseup=()=>{
+    keys[key]=false;
+  };
+}
+
+hold("up","w");
+hold("down","s");
+hold("left","a");
+hold("right","d");
+
+
+// GAME LOOP
+function gameLoop(){
+
+  if(!gameRunning)return;
+
+  let speed=5;
+
+  if(keys["w"]||keys["arrowup"]) py-=speed;
+  if(keys["s"]||keys["arrowdown"]) py+=speed;
+  if(keys["a"]||keys["arrowleft"]) px-=speed;
+  if(keys["d"]||keys["arrowright"]) px+=speed;
+
+  px=Math.max(10,Math.min(1740,px));
+  py=Math.max(10,Math.min(1140,py));
+
+  player.style.left=px+"px";
+  player.style.top=py+"px";
+
+  updateEnemies();
+
+  requestAnimationFrame(gameLoop);
+}
+
+
+// ENEMY AI
+function updateEnemies(){
+
+  enemies.forEach(e=>{
+
+    let dx=px-e.x;
+    let dy=py-e.y;
+
+    let distance=Math.sqrt(dx*dx+dy*dy);
+
+    if(distance<500){
+
+      e.x += dx/distance*1.1;
+      e.y += dy/distance*1.1;
+
+      e.el.style.left=e.x+"px";
+      e.el.style.top=e.y+"px";
+
+      if(distance<45){
+        hp-=0.15;
+
+        hpText.textContent=Math.max(0,Math.floor(hp));
+
+        if(hp<=0) gameOver(false);
+      }
+    }
+  });
+}
+
+
+// SHOOT
+document.getElementById("shoot").onclick=shoot;
+
+function shoot(){
+
+  if(!gameRunning || enemies.length===0)return;
+
+  let nearest=null;
+  let best=99999;
+
+  enemies.forEach(e=>{
+
+    let dx=e.x-px;
+    let dy=e.y-py;
+    let d=Math.sqrt(dx*dx+dy*dy);
+
+    if(d<best){
+      best=d;
+      nearest=e;
+    }
+  });
+
+  // Target must be close enough
+  if(nearest && best<500){
+
+    let bullet=document.createElement("div");
+    bullet.className="bullet";
+
+    bullet.style.left=px+18+"px";
+    bullet.style.top=py+18+"px";
+
+    map.appendChild(bullet);
+
+    let bx=px;
+    let by=py;
+
+    let dx=nearest.x-px;
+    let dy=nearest.y-py;
+
+    let distance=Math.sqrt(dx*dx+dy*dy);
+
+    dx/=distance;
+    dy/=distance;
+
+    let interval=setInterval(()=>{
+
+      bx+=dx*18;
+      by+=dy*18;
+
+      bullet.style.left=bx+"px";
+      bullet.style.top=by+"px";
+
+      let hitDist=Math.sqrt(
+        (bx-nearest.x)**2+
+        (by-nearest.y)**2
+      );
+
+      if(hitDist<35){
+
+        clearInterval(interval);
+        bullet.remove();
+
+        nearest.hp-=30;
+
+        if(nearest.hp<=0){
+
+          nearest.el.remove();
+
+          enemies=enemies.filter(x=>x!==nearest);
+
+          kills++;
+
+          killsText.textContent=kills;
+          enemiesText.textContent=enemies.length;
+
+          if(enemies.length===0){
+            gameOver(true);
+          }
+        }
+      }
+
+      if(bx<0||bx>1800||by<0||by>1200){
+
+        clearInterval(interval);
+        bullet.remove();
+      }
+
+    },30);
+  }
+}
+
+
+// GAME OVER
+function gameOver(win){
+
+  if(!gameRunning)return;
+
+  gameRunning=false;
+
+  document.getElementById("msg").style.display="flex";
+
+  if(win){
+
+    document.getElementById("result").textContent="🏆 BOOYAH!";
+    document.getElementById("resultText").textContent=
+      "You eliminated everyone! Kills: "+kills;
+
+  }else{
+
+    document.getElementById("result").textContent="💀 GAME OVER";
+    document.getElementById("resultText").textContent=
+      "You were eliminated. Kills: "+kills;
+  }
+}
+
+</script>
+
+</body>
+</html>

@@ -1,10 +1,208 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>My Website</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Car Racing Game</title>
+
+<style>
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: #111;
+  color: white;
+  font-family: Arial, sans-serif;
+  text-align: center;
+}
+
+h1 {
+  margin: 15px 0 5px;
+}
+
+#game {
+  width: 360px;
+  height: 600px;
+  max-width: 95vw;
+  margin: 15px auto;
+  position: relative;
+  overflow: hidden;
+  background: #444;
+  border-left: 8px solid #fff;
+  border-right: 8px solid #fff;
+}
+
+.road-line {
+  position: absolute;
+  width: 8px;
+  height: 80px;
+  background: white;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+#player {
+  position: absolute;
+  width: 55px;
+  height: 90px;
+  background: red;
+  border-radius: 12px;
+  bottom: 25px;
+  left: 145px;
+  box-shadow: 0 0 10px black;
+}
+
+#player::before,
+#player::after {
+  content: "";
+  position: absolute;
+  width: 10px;
+  height: 25px;
+  background: #111;
+  top: 15px;
+}
+
+#player::before {
+  left: -5px;
+}
+
+#player::after {
+  right: -5px;
+}
+
+.enemy {
+  position: absolute;
+  width: 55px;
+  height: 90px;
+  background: yellow;
+  border-radius: 12px;
+  top: -100px;
+}
+
+#score {
+  font-size: 22px;
+  font-weight: bold;
+}
+
+button {
+  font-size: 22px;
+  padding: 12px 30px;
+  margin: 5px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+button:active {
+  transform: scale(0.95);
+}
+</style>
 </head>
+
 <body>
-    <h1>Welcome to my website!</h1>
-    <p>Website successfully published 🚀</p>
+
+<h1>🏎️ CAR RACING</h1>
+<div id="score">Score: 0</div>
+
+<div id="game">
+  <div id="player"></div>
+</div>
+
+<div>
+  <button onclick="moveLeft()">⬅️</button>
+  <button onclick="moveRight()">➡️</button>
+</div>
+
+<button onclick="restartGame()">🔄 Restart</button>
+
+<script>
+const game = document.getElementById("game");
+const player = document.getElementById("player");
+const scoreText = document.getElementById("score");
+
+let playerX = 145;
+let score = 0;
+let speed = 5;
+let gameOver = false;
+
+function moveLeft() {
+  if (gameOver) return;
+  playerX -= 35;
+  if (playerX < 10) playerX = 10;
+  player.style.left = playerX + "px";
+}
+
+function moveRight() {
+  if (gameOver) return;
+  playerX += 35;
+  if (playerX > 285) playerX = 285;
+  player.style.left = playerX + "px";
+}
+
+document.addEventListener("keydown", function(e) {
+  if (e.key === "ArrowLeft") moveLeft();
+  if (e.key === "ArrowRight") moveRight();
+});
+
+function createEnemy() {
+  if (gameOver) return;
+
+  const enemy = document.createElement("div");
+  enemy.className = "enemy";
+
+  const lanes = [35, 145, 255];
+  enemy.style.left = lanes[Math.floor(Math.random() * lanes.length)] + "px";
+
+  game.appendChild(enemy);
+
+  let y = -100;
+
+  const timer = setInterval(() => {
+    if (gameOver) {
+      clearInterval(timer);
+      enemy.remove();
+      return;
+    }
+
+    y += speed;
+    enemy.style.top = y + "px";
+
+    const p = player.getBoundingClientRect();
+    const e = enemy.getBoundingClientRect();
+
+    if (
+      p.left < e.right &&
+      p.right > e.left &&
+      p.top < e.bottom &&
+      p.bottom > e.top
+    ) {
+      endGame();
+      clearInterval(timer);
+    }
+
+    if (y > 620) {
+      clearInterval(timer);
+      enemy.remove();
+      score++;
+      scoreText.textContent = "Score: " + score;
+
+      if (score % 5 === 0) speed++;
+    }
+  }, 20);
+}
+
+function endGame() {
+  gameOver = true;
+  alert("💥 GAME OVER!\nYour Score: " + score);
+}
+
+function restartGame() {
+  location.reload();
+}
+
+setInterval(createEnemy, 1200);
+</script>
+
 </body>
 </html>

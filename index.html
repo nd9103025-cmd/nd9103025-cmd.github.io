@@ -2,401 +2,193 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>🏎️ Highway Racer</title>
-
 <style>
-* {
-  box-sizing: border-box;
-  user-select: none;
-}
-
-body {
-  margin: 0;
-  background: #111;
-  color: white;
-  font-family: Arial, sans-serif;
-  text-align: center;
-}
-
-h1 {
-  margin: 12px 0 5px;
-  font-size: 28px;
-}
-
-#info {
-  display: flex;
-  justify-content: center;
-  gap: 25px;
-  font-size: 18px;
-  font-weight: bold;
-  margin-bottom: 8px;
-}
-
-#game {
-  width: 360px;
-  height: 600px;
-  max-width: 94vw;
-  position: relative;
-  overflow: hidden;
-  margin: auto;
-  background: #333;
-  border-left: 7px solid white;
-  border-right: 7px solid white;
-}
-
-/* Road */
-#road {
-  position: absolute;
-  inset: 0;
-  background:
-    linear-gradient(
-      to right,
-      #777 0%,
-      #777 32%,
-      white 32%,
-      white 34%,
-      #777 34%,
-      #777 66%,
-      white 66%,
-      white 68%,
-      #777 68%,
-      #777 100%
-    );
-}
-
-/* Moving road lines */
-.line {
-  position: absolute;
-  width: 6px;
-  height: 70px;
-  background: white;
-  left: 50%;
-  transform: translateX(-50%);
-  border-radius: 5px;
-}
-
-/* Player car */
-.car {
-  position: absolute;
-  width: 58px;
-  height: 92px;
-  border-radius: 15px 15px 10px 10px;
-  background: linear-gradient(to right, #b00000, #ff3030, #b00000);
-  bottom: 25px;
-  z-index: 5;
-  box-shadow: 0 5px 12px #000;
-}
-
-.car::before {
-  content: "";
-  position: absolute;
-  width: 38px;
-  height: 32px;
-  left: 10px;
-  top: 13px;
-  background: #8eeaff;
-  border-radius: 8px;
-  border: 3px solid #222;
-}
-
-.car::after {
-  content: "";
-  position: absolute;
-  width: 12px;
-  height: 10px;
-  background: yellow;
-  left: 23px;
-  bottom: 7px;
-  border-radius: 5px;
-}
-
-/* Wheels */
-.wheel {
-  position: absolute;
-  width: 9px;
-  height: 24px;
-  background: #111;
-  border-radius: 4px;
-  top: 25px;
-}
-
-.w1 { left: -7px; }
-.w2 { right: -7px; }
-
-/* Enemy */
-.enemy {
-  position: absolute;
-  width: 58px;
-  height: 92px;
-  border-radius: 15px 15px 10px 10px;
-  background: linear-gradient(to right, #0044aa, #2196ff, #0044aa);
-  z-index: 4;
-  box-shadow: 0 5px 12px #000;
-}
-
-.enemy::before {
-  content: "";
-  position: absolute;
-  width: 38px;
-  height: 32px;
-  left: 10px;
-  top: 13px;
-  background: #222;
-  border-radius: 8px;
-  border: 3px solid #111;
-}
-
-.enemy::after {
-  content: "";
-  position: absolute;
-  width: 12px;
-  height: 10px;
-  background: red;
-  left: 23px;
-  bottom: 7px;
-  border-radius: 5px;
-}
-
-/* Controls */
-.controls {
-  margin-top: 12px;
-}
-
-button {
-  border: none;
-  border-radius: 12px;
-  padding: 13px 25px;
-  margin: 4px;
-  font-size: 22px;
-  font-weight: bold;
-  cursor: pointer;
-}
-
-button:active {
-  transform: scale(.93);
-}
-
-#restart {
-  background: #ffcc00;
-  font-size: 18px;
-}
-
-/* Game over */
-#gameOver {
-  display: none;
-  position: absolute;
-  inset: 0;
-  z-index: 20;
-  background: rgba(0,0,0,.85);
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
-}
-
-#gameOver h2 {
-  color: #ff3333;
-  font-size: 38px;
-  margin: 5px;
-}
-
-#gameOver p {
-  font-size: 22px;
-}
+*{box-sizing:border-box;user-select:none}
+body{margin:0;background:#080b12;color:white;font-family:Arial;text-align:center}
+h1{margin:12px 0 5px;font-size:28px}
+#info{display:flex;justify-content:center;gap:25px;font-weight:bold;margin:8px}
+#game{width:360px;height:600px;max-width:94vw;margin:auto;position:relative;overflow:hidden;border-left:7px solid white;border-right:7px solid white;background:linear-gradient(#18202c,#333)}
+#road{position:absolute;inset:0;background:#3d4148}
+.line{position:absolute;width:7px;height:75px;background:white;left:50%;transform:translateX(-50%);border-radius:5px}
+.car,.enemy{position:absolute;width:58px;height:92px;border-radius:15px 15px 10px 10px;box-shadow:0 5px 12px #000;z-index:5}
+.car{background:linear-gradient(90deg,#9b0000,#ff3030,#9b0000);bottom:25px}
+.enemy{background:linear-gradient(90deg,#0645a5,#28a5ff,#0645a5)}
+.car:before,.enemy:before{content:"";position:absolute;width:38px;height:32px;left:10px;top:13px;border-radius:8px;border:3px solid #111}
+.car:before{background:#8eeaff}.enemy:before{background:#222}
+.car:after,.enemy:after{content:"";position:absolute;width:12px;height:10px;left:23px;bottom:7px;border-radius:5px}
+.car:after{background:#ffea00}.enemy:after{background:red}
+.wheel{position:absolute;width:9px;height:24px;background:#111;border-radius:4px;top:25px}
+.w1{left:-7px}.w2{right:-7px}
+button{border:0;border-radius:12px;padding:12px 22px;margin:5px;font-size:19px;font-weight:bold;cursor:pointer}
+button:active{transform:scale(.94)}
+#menu,#over{position:absolute;inset:0;z-index:20;background:rgba(0,0,0,.9);display:flex;flex-direction:column;align-items:center;justify-content:center}
+#over{display:none}
+#menu h2,#over h2{font-size:35px;margin:8px}
+.diff{background:#ffcc00}
+#restart{background:#20d66b}
+.small{font-size:15px;color:#ccc}
 </style>
 </head>
-
 <body>
 
 <h1>🏎️ HIGHWAY RACER</h1>
 
 <div id="info">
-  <span>🏆 Score: <span id="score">0</span></span>
-  <span>❤️ Lives: <span id="lives">3</span></span>
+<span>🏆 <span id="score">0</span></span>
+<span>❤️ <span id="lives">3</span></span>
+<span>👑 <span id="best">0</span></span>
 </div>
 
 <div id="game">
+<div id="road"></div>
 
-  <div id="road"></div>
-
-  <div id="player" class="car">
-    <span class="wheel w1"></span>
-    <span class="wheel w2"></span>
-  </div>
-
-  <div id="gameOver">
-    <h2>GAME OVER</h2>
-    <p>🏆 Score: <span id="finalScore">0</span></p>
-    <button id="restart" onclick="restartGame()">🔄 PLAY AGAIN</button>
-  </div>
-
+<div id="menu">
+<h2>🏎️ RACING</h2>
+<p>Select Difficulty</p>
+<button class="diff" onclick="startGame(4)">🟢 EASY</button>
+<button class="diff" onclick="startGame(6)">🟡 MEDIUM</button>
+<button class="diff" onclick="startGame(8)">🔴 HARD</button>
+<p class="small">Keyboard: ⬅️ ➡️</p>
 </div>
 
-<div class="controls">
-  <button onclick="moveLeft()">⬅️</button>
-  <button onclick="moveRight()">➡️</button>
+<div id="player" class="car">
+<span class="wheel w1"></span><span class="wheel w2"></span>
+</div>
+
+<div id="over">
+<h2>💥 GAME OVER</h2>
+<p>Score: <b id="finalScore">0</b></p>
+<p>Best: <b id="finalBest">0</b></p>
+<button id="restart" onclick="location.reload()">🔄 PLAY AGAIN</button>
+</div>
+</div>
+
+<div>
+<button onclick="moveLeft()">⬅️ LEFT</button>
+<button onclick="moveRight()">RIGHT ➡️</button>
 </div>
 
 <script>
-const game = document.getElementById("game");
-const player = document.getElementById("player");
-const scoreText = document.getElementById("score");
-const livesText = document.getElementById("lives");
-const gameOverScreen = document.getElementById("gameOver");
-const finalScore = document.getElementById("finalScore");
+const game=document.getElementById("game");
+const player=document.getElementById("player");
+const menu=document.getElementById("menu");
+const over=document.getElementById("over");
+const scoreEl=document.getElementById("score");
+const livesEl=document.getElementById("lives");
+const bestEl=document.getElementById("best");
 
-let playerX = 151;
-let score = 0;
-let lives = 3;
-let speed = 5;
-let gameRunning = true;
+let x=151,score=0,lives=3,speed=5,running=false;
+let best=Number(localStorage.getItem("racerBest")||0);
+bestEl.textContent=best;
 
-player.style.left = playerX + "px";
+player.style.left=x+"px";
 
-/* Keyboard */
-document.addEventListener("keydown", function(e) {
-  if (e.key === "ArrowLeft") moveLeft();
-  if (e.key === "ArrowRight") moveRight();
+for(let i=0;i<7;i++){
+ let l=document.createElement("div");
+ l.className="line";
+ l.style.top=(i*100-80)+"px";
+ document.getElementById("road").appendChild(l);
+}
+
+function startGame(s){
+ speed=s;
+ running=true;
+ menu.style.display="none";
+ roadLoop();
+ spawn();
+}
+
+function moveLeft(){
+ if(!running)return;
+ x-=38;
+ if(x<10)x=10;
+ player.style.left=x+"px";
+}
+
+function moveRight(){
+ if(!running)return;
+ x+=38;
+ if(x>285)x=285;
+ player.style.left=x+"px";
+}
+
+document.addEventListener("keydown",e=>{
+ if(e.key==="ArrowLeft")moveLeft();
+ if(e.key==="ArrowRight")moveRight();
 });
 
-/* Move player */
-function moveLeft() {
-  if (!gameRunning) return;
-
-  playerX -= 35;
-
-  if (playerX < 10)
-    playerX = 10;
-
-  player.style.left = playerX + "px";
+let roadY=-80;
+function roadLoop(){
+ if(!running)return;
+ roadY+=speed;
+ if(roadY>600)roadY=-80;
+ document.querySelectorAll(".line").forEach((l,i)=>{
+   l.style.top=(roadY+i*100)%700-100+"px";
+ });
+ requestAnimationFrame(roadLoop);
 }
 
-function moveRight() {
-  if (!gameRunning) return;
+function spawn(){
+ if(!running)return;
 
-  playerX += 35;
+ const enemy=document.createElement("div");
+ enemy.className="enemy";
+ const lanes=[25,151,277];
+ enemy.style.left=lanes[Math.floor(Math.random()*3)]+"px";
+ enemy.style.top="-110px";
+ game.appendChild(enemy);
 
-  if (playerX > 285)
-    playerX = 285;
+ let y=-110;
 
-  player.style.left = playerX + "px";
+ let timer=setInterval(()=>{
+   if(!running){
+     clearInterval(timer);
+     enemy.remove();
+     return;
+   }
+
+   y+=speed;
+   enemy.style.top=y+"px";
+
+   let a=player.getBoundingClientRect();
+   let b=enemy.getBoundingClientRect();
+
+   if(a.left<b.right&&a.right>b.left&&a.top<b.bottom&&a.bottom>b.top){
+     clearInterval(timer);
+     enemy.remove();
+     hit();
+   }
+
+   if(y>620){
+     clearInterval(timer);
+     enemy.remove();
+     score++;
+     scoreEl.textContent=score;
+
+     if(score>best){
+       best=score;
+       bestEl.textContent=best;
+       localStorage.setItem("racerBest",best);
+     }
+   }
+ },20);
+
+ setTimeout(spawn,Math.max(500,1200-speed*60));
 }
 
-/* Road animation */
-let lineY = -80;
+function hit(){
+ lives--;
+ livesEl.textContent=lives;
 
-function moveRoad() {
-  if (!gameRunning) return;
-
-  lineY += speed;
-
-  if (lineY > 600)
-    lineY = -80;
-
-  document.querySelectorAll(".line").forEach(line => {
-    line.style.top = lineY + "px";
-  });
-
-  requestAnimationFrame(moveRoad);
+ if(lives<=0){
+   running=false;
+   document.getElementById("finalScore").textContent=score;
+   document.getElementById("finalBest").textContent=best;
+   over.style.display="flex";
+ }
 }
-
-/* Create road lines */
-for (let i = 0; i < 6; i++) {
-  const line = document.createElement("div");
-  line.className = "line";
-  line.style.top = (i * 120 - 80) + "px";
-  document.getElementById("road").appendChild(line);
-}
-
-/* Enemy car */
-function createEnemy() {
-  if (!gameRunning) return;
-
-  const enemy = document.createElement("div");
-  enemy.className = "enemy";
-
-  const lanes = [25, 151, 277];
-  enemy.style.left =
-    lanes[Math.floor(Math.random() * lanes.length)] + "px";
-
-  enemy.style.top = "-110px";
-
-  game.appendChild(enemy);
-
-  let y = -110;
-
-  const timer = setInterval(() => {
-
-    if (!gameRunning) {
-      clearInterval(timer);
-      enemy.remove();
-      return;
-    }
-
-    y += speed;
-    enemy.style.top = y + "px";
-
-    const p = player.getBoundingClientRect();
-    const e = enemy.getBoundingClientRect();
-
-    if (
-      p.left < e.right &&
-      p.right > e.left &&
-      p.top < e.bottom &&
-      p.bottom > e.top
-    ) {
-      clearInterval(timer);
-      enemy.remove();
-      loseLife();
-      return;
-    }
-
-    if (y > 620) {
-      clearInterval(timer);
-      enemy.remove();
-
-      score++;
-      scoreText.textContent = score;
-
-      /* Increase speed */
-      if (score % 5 === 0) {
-        speed += 0.7;
-      }
-    }
-
-  }, 20);
-}
-
-/* Lose life */
-function loseLife() {
-
-  lives--;
-  livesText.textContent = lives;
-
-  if (lives <= 0) {
-    endGame();
-  }
-}
-
-/* End game */
-function endGame() {
-
-  gameRunning = false;
-
-  finalScore.textContent = score;
-  gameOverScreen.style.display = "flex";
-}
-
-/* Restart */
-function restartGame() {
-  location.reload();
-}
-
-/* Start */
-moveRoad();
-
-setInterval(createEnemy, 1100);
 </script>
-
 </body>
 </html>

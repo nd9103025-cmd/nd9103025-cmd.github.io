@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Target Shooter</title>
+
+<style>
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: #111;
+  color: white;
+  font-family: Arial, sans-serif;
+  text-align: center;
+  overflow: hidden;
+}
+
+h1 {
+  margin: 12px 0 5px;
+  color: #00ffcc;
+}
+
+#info {
+  font-size: 20px;
+  margin-bottom: 8px;
+}
+
+#game {
+  position: relative;
+  width: 95vw;
+  max-width: 900px;
+  height: 70vh;
+  margin: auto;
+  background:
+    radial-gradient(circle at center, #263238, #050505);
+  border: 3px solid #00ffcc;
+  border-radius: 15px;
+  overflow: hidden;
+  cursor: crosshair;
+}
+
+.target {
+  position: absolute;
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    white 0 12%,
+    red 13% 30%,
+    white 31% 48%,
+    red 49% 68%,
+    #111 69%
+  );
+  box-shadow: 0 0 20px red;
+}
+
+#start {
+  padding: 12px 25px;
+  border: none;
+  border-radius: 10px;
+  background: #00ffcc;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+#start:hover {
+  background: #00ccaa;
+}
+</style>
+</head>
+
+<body>
+
+<h1>🎯 TARGET SHOOTER</h1>
+
+<div id="info">
+  Score: <span id="score">0</span>
+  &nbsp; | &nbsp;
+  Time: <span id="time">30</span>
+</div>
+
+<button id="start">START GAME</button>
+
+<div id="game"></div>
+
+<script>
+const game = document.getElementById("game");
+const scoreText = document.getElementById("score");
+const timeText = document.getElementById("time");
+const startBtn = document.getElementById("start");
+
+let score = 0;
+let time = 30;
+let timer;
+let playing = false;
+
+function createTarget() {
+
+  const target = document.createElement("div");
+  target.className = "target";
+
+  const maxX = game.clientWidth - 70;
+  const maxY = game.clientHeight - 70;
+
+  target.style.left = Math.random() * maxX + "px";
+  target.style.top = Math.random() * maxY + "px";
+
+  target.onclick = function(e) {
+    e.stopPropagation();
+
+    score++;
+    scoreText.textContent = score;
+
+    target.remove();
+
+    createTarget();
+  };
+
+  game.appendChild(target);
+}
+
+function startGame() {
+
+  score = 0;
+  time = 30;
+  playing = true;
+
+  scoreText.textContent = score;
+  timeText.textContent = time;
+
+  game.innerHTML = "";
+
+  createTarget();
+
+  clearInterval(timer);
+
+  timer = setInterval(() => {
+
+    time--;
+    timeText.textContent = time;
+
+    if (time <= 0) {
+
+      clearInterval(timer);
+      playing = false;
+      game.innerHTML = "";
+
+      alert("🎯 Game Over!\nYour Score: " + score);
+    }
+
+  }, 1000);
+}
+
+startBtn.onclick = startGame;
+</script>
+
+</body>
+</html>

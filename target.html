@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Target Shooter</title>
+<title>🎯 Target Shooter</title>
 
 <style>
 * {
@@ -12,7 +12,7 @@
 
 body {
   margin: 0;
-  background: #111;
+  background: #050505;
   color: white;
   font-family: Arial, sans-serif;
   text-align: center;
@@ -20,12 +20,13 @@ body {
 }
 
 h1 {
-  margin: 12px 0 5px;
-  color: #00ffcc;
+  margin: 10px 0;
+  color: #00ffd5;
+  text-shadow: 0 0 15px #00ffd5;
 }
 
 #info {
-  font-size: 20px;
+  font-size: 18px;
   margin-bottom: 8px;
 }
 
@@ -35,12 +36,27 @@ h1 {
   max-width: 900px;
   height: 70vh;
   margin: auto;
-  background:
-    radial-gradient(circle at center, #263238, #050505);
-  border: 3px solid #00ffcc;
+  border: 3px solid #00ffd5;
   border-radius: 15px;
   overflow: hidden;
   cursor: crosshair;
+
+  background:
+    linear-gradient(rgba(0,255,213,.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,255,213,.05) 1px, transparent 1px),
+    radial-gradient(circle, #263238, #020202);
+  background-size: 30px 30px;
+}
+
+#start {
+  padding: 10px 25px;
+  margin-bottom: 8px;
+  border: 0;
+  border-radius: 10px;
+  background: #00ffd5;
+  font-size: 17px;
+  font-weight: bold;
+  cursor: pointer;
 }
 
 .target {
@@ -48,29 +64,67 @@ h1 {
   width: 70px;
   height: 70px;
   border-radius: 50%;
-  background: radial-gradient(
-    circle,
-    white 0 12%,
-    red 13% 30%,
-    white 31% 48%,
-    red 49% 68%,
-    #111 69%
-  );
-  box-shadow: 0 0 20px red;
+
+  background:
+    radial-gradient(
+      circle,
+      white 0 10%,
+      red 11% 28%,
+      white 29% 45%,
+      red 46% 65%,
+      #111 66%
+    );
+
+  box-shadow:
+    0 0 10px red,
+    0 0 25px red;
+
+  transition: transform .08s;
 }
 
-#start {
-  padding: 12px 25px;
-  border: none;
-  border-radius: 10px;
-  background: #00ffcc;
-  font-size: 18px;
+.target:hover {
+  transform: scale(1.1);
+}
+
+#gun {
+  position: absolute;
+  bottom: 5px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 55px;
+  filter: drop-shadow(0 0 8px white);
+  pointer-events: none;
+}
+
+#message {
+  position: absolute;
+  top: 45%;
+  width: 100%;
+  font-size: 30px;
   font-weight: bold;
-  cursor: pointer;
+  color: #00ffd5;
+  pointer-events: none;
 }
 
-#start:hover {
-  background: #00ccaa;
+.hit {
+  position: absolute;
+  color: yellow;
+  font-size: 25px;
+  font-weight: bold;
+  animation: hitAnim .5s forwards;
+  pointer-events: none;
+}
+
+@keyframes hitAnim {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+
+  to {
+    opacity: 0;
+    transform: translateY(-60px) scale(1.5);
+  }
 }
 </style>
 </head>
@@ -80,42 +134,118 @@ h1 {
 <h1>🎯 TARGET SHOOTER</h1>
 
 <div id="info">
-  Score: <span id="score">0</span>
-  &nbsp; | &nbsp;
-  Time: <span id="time">30</span>
+  🎯 Score: <span id="score">0</span>
+  |
+  ❤️ Lives: <span id="lives">3</span>
+  |
+  ⏱️ Time: <span id="time">30</span>
+  |
+  🏆 High Score: <span id="high">0</span>
 </div>
 
 <button id="start">START GAME</button>
 
-<div id="game"></div>
+<div id="game">
+  <div id="message">PRESS START</div>
+  <div id="gun">🔫</div>
+</div>
 
 <script>
+
 const game = document.getElementById("game");
 const scoreText = document.getElementById("score");
+const livesText = document.getElementById("lives");
 const timeText = document.getElementById("time");
+const highText = document.getElementById("high");
 const startBtn = document.getElementById("start");
+const message = document.getElementById("message");
 
 let score = 0;
+let lives = 3;
 let time = 30;
-let timer;
+let level = 1;
 let playing = false;
 
+let timer;
+let moveTimer;
+
+let highScore = localStorage.getItem("targetHighScore") || 0;
+highText.textContent = highScore;
+
+
+// START GAME
+function startGame() {
+
+  clearInterval(timer);
+  clearInterval(moveTimer);
+
+  score = 0;
+  lives = 3;
+  time = 30;
+  level = 1;
+
+  playing = true;
+
+  scoreText.textContent = score;
+  livesText.textContent = lives;
+  timeText.textContent = time;
+
+  message.style.display = "none";
+
+  document.querySelectorAll(".target").forEach(t => t.remove());
+
+  createTarget();
+
+  timer = setInterval(() => {
+
+    time--;
+
+    timeText.textContent = time;
+
+    if (time <= 0) {
+      gameOver();
+    }
+
+  }, 1000);
+
+}
+
+
+// CREATE TARGET
 function createTarget() {
 
+  if (!playing) return;
+
   const target = document.createElement("div");
+
   target.className = "target";
 
-  const maxX = game.clientWidth - 70;
-  const maxY = game.clientHeight - 70;
+  const size = Math.max(40, 70 - level * 4);
 
-  target.style.left = Math.random() * maxX + "px";
-  target.style.top = Math.random() * maxY + "px";
+  target.style.width = size + "px";
+  target.style.height = size + "px";
+
+  moveTarget(target);
 
   target.onclick = function(e) {
+
     e.stopPropagation();
 
+    if (!playing) return;
+
     score++;
+
+    // LEVEL UP
+    if (score % 5 === 0) {
+      level++;
+
+      time += 3;
+      timeText.textContent = time;
+    }
+
     scoreText.textContent = score;
+
+    showHit(e.clientX, e.clientY);
 
     target.remove();
 
@@ -123,41 +253,115 @@ function createTarget() {
   };
 
   game.appendChild(target);
+
+  startMoving(target);
 }
 
-function startGame() {
 
-  score = 0;
-  time = 30;
-  playing = true;
+// MOVE TARGET
+function moveTarget(target) {
 
-  scoreText.textContent = score;
-  timeText.textContent = time;
+  if (!target.parentElement) return;
 
-  game.innerHTML = "";
+  const maxX = game.clientWidth - target.offsetWidth;
+  const maxY = game.clientHeight - target.offsetHeight - 60;
 
-  createTarget();
+  target.style.left = Math.random() * maxX + "px";
+  target.style.top = Math.random() * maxY + "px";
+}
 
-  clearInterval(timer);
 
-  timer = setInterval(() => {
+// MOVING TARGET
+function startMoving(target) {
 
-    time--;
-    timeText.textContent = time;
+  clearInterval(moveTimer);
 
-    if (time <= 0) {
+  let speed = Math.max(250, 900 - level * 60);
 
-      clearInterval(timer);
-      playing = false;
-      game.innerHTML = "";
+  moveTimer = setInterval(() => {
 
-      alert("🎯 Game Over!\nYour Score: " + score);
+    if (!playing || !target.parentElement) {
+      clearInterval(moveTimer);
+      return;
     }
 
-  }, 1000);
+    moveTarget(target);
+
+  }, speed);
 }
 
+
+// HIT TEXT
+function showHit(x, y) {
+
+  const hit = document.createElement("div");
+
+  hit.className = "hit";
+  hit.textContent = "+1 🎯";
+
+  const rect = game.getBoundingClientRect();
+
+  hit.style.left = (x - rect.left) + "px";
+  hit.style.top = (y - rect.top) + "px";
+
+  game.appendChild(hit);
+
+  setTimeout(() => {
+    hit.remove();
+  }, 500);
+}
+
+
+// MISS CLICK
+game.addEventListener("click", function(e) {
+
+  if (!playing) return;
+
+  if (e.target.classList.contains("target")) return;
+
+  lives--;
+
+  livesText.textContent = lives;
+
+  if (lives <= 0) {
+    gameOver();
+  }
+
+});
+
+
+// GAME OVER
+function gameOver() {
+
+  playing = false;
+
+  clearInterval(timer);
+  clearInterval(moveTimer);
+
+  document.querySelectorAll(".target").forEach(t => t.remove());
+
+  if (score > highScore) {
+
+    highScore = score;
+
+    localStorage.setItem("targetHighScore", highScore);
+
+    highText.textContent = highScore;
+  }
+
+  message.innerHTML =
+    "GAME OVER 💥<br>" +
+    "Score: " + score +
+    "<br>" +
+    "Level: " + level;
+
+  message.style.display = "block";
+}
+
+
+// START BUTTON
 startBtn.onclick = startGame;
+
 </script>
 
 </body>
